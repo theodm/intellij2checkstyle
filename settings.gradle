@@ -1,0 +1,4 @@
+include "intellij2checkstyle-core"
+include 'intellij2checkstyle-cmd'
+
+rootProject.name = "intellij2checkstyle"

@@ -1,0 +1,1 @@
+EXIT %TEST_VAR%

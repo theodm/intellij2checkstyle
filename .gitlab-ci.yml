@@ -1,0 +1,83 @@
+stages:
+- build
+- verify
+- deploy
+
+before_script:
+- export GRADLE_USER_HOME=`pwd`/.gradle
+
+build:
+  image: openjdk:8
+  stage: build
+  script:
+  - chmod +x gradlew
+  - ./gradlew assembleRelease
+  artifacts:
+    paths:
+    - ./build/release
+
+build:image:
+  image: docker:git
+  stage: build
+  services:
+  - docker:dind
+  variables:
+    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  script:
+  - cd ./image/intellij-ce-current
+  - docker pull $CONTAINER_IMAGE:intellij-ce-current || true
+  - docker build --cache-from $CONTAINER_IMAGE:intellij-ce-current --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:intellij-ce-current .
+  - docker push $CONTAINER_IMAGE:intellij-ce-current
+
+test:
+  image: openjdk:8
+  stage: verify
+  script:
+  - chmod +x gradlew
+  - ./gradlew testRootReport
+  - ./gradlew jacocoRootReport
+  - cat ./build/reports/jacoco/jacocoRootReport/html/index.html
+  coverage: '/Total.*?([0-9]{1,3})%/'
+  artifacts:
+    paths:
+    - ./build/reports/jacoco
+    - ./build/reports/allTests
+    when: always
+
+test:intellij-ce-current:
+  image: registry.gitlab.com/theodm94/intellij2checkstyle:intellij-ce-current
+  stage: verify
+  script:
+  - chmod +x gradlew
+  - ./gradlew :intellij2checkstyle-core:integrationTest
+  artifacts:
+    paths:
+    - ./intellij2checkstyle-core/build/integration
+    - ./intellij2checkstyle-core/build/reports/tests/integrationTest
+    when: always
+
+lint:
+  image: openjdk:8
+  stage: verify
+  script:
+  - chmod +x gradlew
+  - ./gradlew violations
+
+pages:
+  image: openjdk:8
+  stage: deploy
+  script:
+  - mkdir --parents public/coverage/
+  - mkdir --parents public/tests/
+  - mv ./build/reports/jacoco/jacocoRootReport/html/* public/coverage/
+  - mv ./build/reports/allTests/* public/tests/
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
+
