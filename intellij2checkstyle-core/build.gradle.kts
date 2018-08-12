@@ -5,9 +5,6 @@ import se.bjurr.violations.lib.ViolationsReporterDetailLevel
 import se.bjurr.violations.lib.model.SEVERITY
 import se.bjurr.violations.gradle.plugin.ViolationsTask
 
-group = "de.theodm"
-version = "1.0-SNAPSHOT"
-
 dependencies {
     // Kotlin Standard-Bibliothek
     compile(kotlin(module = "stdlib-jdk8", version = rootProject.extra["kotlinVersion"] as String))
