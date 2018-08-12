@@ -32,7 +32,7 @@ plugins {
 
 allprojects {
     group = "de.theodm"
-    version = "1.0.0-RC1"
+    version = "1.0.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
