@@ -14,7 +14,7 @@ internal fun executeInspect(
     ) = args
 
     executeProgramWithEnv(
-        intelliJExecutablePath,
+        intelliJExecutablePath.toString(),
         arrayOf(
             projectFolderPath.toAbsolutePath().toString(),
             profile,

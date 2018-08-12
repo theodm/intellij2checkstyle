@@ -90,14 +90,13 @@ detekt {
     })
 }
 
-tasks.create("assembleRelease", Zip::class.java) {
+tasks.create("assembleRelease", Copy::class.java) {
     dependsOn(
         "assemble",
         ":intellij2checkstyle-core:assemble",
         ":intellij2checkstyle-cmd:assemble"
     )
 
-    archiveName = "intellij2checkstyle-$version.zip"
     destinationDir = file(buildDir.resolve("release"))
 
     val cmdJarFolder = project(":intellij2checkstyle-cmd")
@@ -106,14 +105,6 @@ tasks.create("assembleRelease", Zip::class.java) {
 
     from(cmdJarFolder) {
         include("*-all.jar")
-    }
-
-    val dataFolder = project(":intellij2checkstyle-core")
-        .projectDir
-        .resolve("data")
-
-    from(dataFolder) {
-        into("data")
     }
 }
 

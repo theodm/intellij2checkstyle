@@ -46,9 +46,9 @@ internal class ConvertCommandTest {
     @Test
     @DisplayName(
         "GIVEN all possible parameters on the command line " +
-                "WHEN executing convert " +
-                "THEN Intellij2Checkstyle.convert() should be called " +
-                "with all given parameters"
+            "WHEN executing convert " +
+            "THEN Intellij2Checkstyle.convert() should be called " +
+            "with all given parameters"
     )
     fun testAllParameters() {
         // When
@@ -75,9 +75,9 @@ internal class ConvertCommandTest {
     @Test
     @DisplayName(
         "GIVEN only the needed parameters on the command line " +
-                "WHEN executing convert " +
-                "THEN Intellij2Checkstyle.convert() should be called " +
-                "with needed parameters and default parameters"
+            "WHEN executing convert " +
+            "THEN Intellij2Checkstyle.convert() should be called " +
+            "with needed parameters and default parameters"
     )
     fun testDefaultParameters() {
         // When

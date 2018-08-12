@@ -3,18 +3,16 @@ package de.theodm.intellij2checkstyle.inspect.gatherArguments.prepareIntelliJEnv
 import de.theodm.intellij2checkstyle.extensions.path.FilesKt
 import de.theodm.intellij2checkstyle.extensions.path.appendToFile
 import de.theodm.intellij2checkstyle.extensions.path.replaceInFile
+import de.theodm.intellij2checkstyle.inspect.gatherArguments.prepareIntelliJEnvironment.copyConfigurationFiles.copyConfigurationFiles
 import java.nio.file.Path
 
 internal fun prepareIntelliJEnvironment(
     tempPath: Path,
-    dataPath: Path,
     jdkPath: Path,
     proxySettingsDir: Path?,
     scopeOverride: String?
 ): Map<String, String> {
-    val ideaConfigurationPath =
-        FilesKt.copyDirectoryIntoDirectory(dataPath.resolve("ideaConfiguration"), tempPath)
-
+    val ideaConfigurationPath = copyConfigurationFiles(tempPath)
     val ideaPropertiesFilePath = ideaConfigurationPath.resolve("idea.properties")
 
     ideaPropertiesFilePath

@@ -2,53 +2,47 @@ package de.theodm.intellij2checkstyle.extensions.execute
 
 import mu.KotlinLogging
 import java.io.BufferedReader
+import java.io.InputStream
 import java.io.InputStreamReader
-import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 private const val DEFAULT_TIMEOUT = 360.toLong()
 
 private val log = KotlinLogging.logger { }
 
-internal fun executeProgram(
-    executablePath: Path,
-    vararg args: String
-): Int {
-    return executeProgramWithEnv(
-        executablePath = executablePath,
-        args = args,
-        environmentVariables = mapOf()
-    )
-}
-
 internal fun executeProgramWithEnv(
-    executablePath: Path,
+    executable: String,
     args: Array<out String> = arrayOf(),
     environmentVariables: Map<String, String> = mapOf(),
     timeoutInSeconds: Long = DEFAULT_TIMEOUT
 ): Int {
-    val executablePathStr = executablePath
-        .toAbsolutePath()
-        .toString()
+    fun outputToLog(
+        inputStream: InputStream,
+        logger: (String) -> Unit
+    ) {
+        val reader = BufferedReader(InputStreamReader(inputStream))
 
-    log.debug {
-        "Executing Program at $executablePathStr with arguments ${args.joinToString()} and " +
-            "evironment $environmentVariables"
+        reader.useLines { lines ->
+            lines.forEach {
+                logger("$executable: $it")
+            }
+        }
     }
 
-    val processBuilder = ProcessBuilder(executablePathStr, *args)
+    log.debug {
+        "Executing \"$executable ${args.joinToString(" ")}\"" +
+            "environment is $environmentVariables"
+    }
+
+    val processBuilder = ProcessBuilder(executable, *args)
 
     processBuilder
         .environment() += environmentVariables
 
     val process: Process = processBuilder.start()
-    val reader = BufferedReader(InputStreamReader(process.inputStream))
 
-    reader.useLines { lines ->
-        lines.forEach {
-            log.trace { "${executablePath.fileName}: $it" }
-        }
-    }
+    outputToLog(process.inputStream) { log.debug { it } }
+    outputToLog(process.errorStream) { log.error { it } }
 
     val processHasExited = process.waitFor(timeoutInSeconds, TimeUnit.SECONDS)
 
@@ -58,7 +52,7 @@ internal fun executeProgramWithEnv(
         throw ExecutionTooLongException()
     }
 
-    log.debug { "Program $executablePathStr returned exit value ${process.exitValue()}" }
+    log.debug { "Program $executable returned exit value ${process.exitValue()}" }
 
     return process.exitValue()
 }

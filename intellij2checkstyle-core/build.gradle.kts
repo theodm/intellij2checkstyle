@@ -60,6 +60,12 @@ tasks.getByName("test") {
 
 tasks.create("integrationTest", Test::class.java) {
     filter {
-        includeTestsMatching("integration.*")
+        includeTestsMatching("integration.tests.*")
+    }
+}
+
+tasks.create("cmdIntegrationTest", Test::class.java) {
+    filter {
+        includeTestsMatching("integration.cmd.*")
     }
 }

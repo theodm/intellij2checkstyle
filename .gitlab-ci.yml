@@ -33,7 +33,7 @@ build:image:
   - docker build --cache-from $CONTAINER_IMAGE:intellij-ce-current --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:intellij-ce-current .
   - docker push $CONTAINER_IMAGE:intellij-ce-current
 
-test:
+unit-test:
   image: openjdk:8
   stage: verify
   script:
@@ -48,7 +48,7 @@ test:
     - ./build/reports/allTests
     when: always
 
-test:intellij-ce-current:
+integration-test:intellij-ce-current:
   image: registry.gitlab.com/theodm94/intellij2checkstyle:intellij-ce-current
   stage: verify
   script:
@@ -58,6 +58,20 @@ test:intellij-ce-current:
     paths:
     - ./intellij2checkstyle-core/build/integration
     - ./intellij2checkstyle-core/build/reports/tests/integrationTest
+    when: always
+
+full-test:command-line-client:
+  image: registry.gitlab.com/theodm94/intellij2checkstyle:intellij-ce-current
+  stage: verify
+  script:
+  - chmod +x gradlew
+  - ./gradlew :intellij2checkstyle-core:cmdIntegrationTest
+  dependencies:
+  - build
+  artifacts:
+    paths:
+    - ./intellij2checkstyle-core/build/integration
+    - ./intellij2checkstyle-core/build/reports/tests/cmdIntegrationTest
     when: always
 
 lint:

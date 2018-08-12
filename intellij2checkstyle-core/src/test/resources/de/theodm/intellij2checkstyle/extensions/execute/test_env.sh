@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exit $TEST_ENV
+exit ${TEST_ENV}

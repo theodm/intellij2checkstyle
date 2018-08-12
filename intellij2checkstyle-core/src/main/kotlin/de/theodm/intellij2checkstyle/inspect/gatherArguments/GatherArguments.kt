@@ -15,7 +15,6 @@ internal fun gatherArguments(
     profileOverride: String?,
     projectFolderPath: Path,
     tempPath: Path,
-    dataPath: Path,
     outputFolderPath: Path,
     proxySettingsDir: Path?,
     scopeOverride: String?
@@ -27,7 +26,6 @@ internal fun gatherArguments(
     val environment =
         prepareIntelliJEnvironment(
             tempPath = tempPath,
-            dataPath = dataPath,
             jdkPath = jdkPath,
             proxySettingsDir = proxySettingsDir,
             scopeOverride = scopeOverride

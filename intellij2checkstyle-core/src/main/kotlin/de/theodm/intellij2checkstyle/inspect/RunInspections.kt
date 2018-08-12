@@ -22,7 +22,6 @@ internal fun runInspections(
         profileOverride = profileOverride,
         projectFolderPath = projectFolderPath,
         tempPath = tempFolder,
-        dataPath = fileSystem.getPath(".", "data"),
         proxySettingsDir = proxySettingsDir,
         outputFolderPath = outputFolderPath,
         scopeOverride = scopeOverride

@@ -24,7 +24,7 @@ internal class ExecuteProgramKtTest {
             "/de/theodm/intellij2checkstyle/extensions/execute/test.bat"
         ).toPath()
 
-        val result = executeProgram(pathOfBatchFile, "15")
+        val result = executeProgramWithEnv("$pathOfBatchFile", arrayOf("15"))
 
         Truth.assertThat(result).isEqualTo(15)
     }
@@ -44,7 +44,7 @@ internal class ExecuteProgramKtTest {
         ).toPath()
 
         val result = executeProgramWithEnv(
-            executablePath = pathOfBatchFile,
+            executable = "$pathOfBatchFile",
             args = arrayOf(),
             environmentVariables = mapOf("TEST_VAR" to "19")
         )
@@ -70,7 +70,7 @@ internal class ExecuteProgramKtTest {
             PosixFilePermissions.fromString("rwxrwxrwx")
         )
 
-        val result = executeProgram(pathOfBatchFile, "15")
+        val result = executeProgramWithEnv("$pathOfBatchFile", arrayOf("15"))
 
         Truth.assertThat(result).isEqualTo(15)
     }
@@ -95,7 +95,7 @@ internal class ExecuteProgramKtTest {
         )
 
         val result = executeProgramWithEnv(
-            executablePath = pathOfBatchFile,
+            executable = "$pathOfBatchFile",
             args = arrayOf("15"),
             environmentVariables = mapOf("TEST_ENV" to "19")
         )

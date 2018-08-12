@@ -9,7 +9,6 @@ import de.theodm.intellij2checkstyle.testExtensions.subjects.TruthExtensions
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import java.nio.file.Paths
 
 private val expectedIdeaProperties = arrayOf(
     "idea.config.path=/work/jimfs/tempPath/ideaConfiguration/config",
@@ -96,36 +95,10 @@ internal class PrepareIntelliJEnvironmentKtTest {
     // Given
     private val root = fs {
         dir("tempPath")
-        dir("dataPath", "ideaConfiguration") {
-            dir("config", "options") {
-                file(
-                    name = "jdk.table.xml",
-                    content = Paths
-                        .get(
-                            "data",
-                            "ideaConfiguration",
-                            "config",
-                            "options",
-                            "jdk.table.xml"
-                        ).readFully()
-                )
-            }
-
-            file(
-                name = "idea.properties",
-                content = Paths
-                    .get(
-                        "data",
-                        "ideaConfiguration",
-                        "idea.properties"
-                    ).readFully()
-            )
-        }
         dir("jdkPath")
     }
 
     private val tempPath = root.resolve("tempPath")
-    private val dataPath = root.resolve("dataPath")
     private val jdkPath = root.resolve("jdkPath")
 
     @Test
@@ -142,7 +115,6 @@ internal class PrepareIntelliJEnvironmentKtTest {
         // When
         val result = prepareIntelliJEnvironment(
             tempPath = tempPath,
-            dataPath = dataPath,
             jdkPath = jdkPath,
             proxySettingsDir = null,
             scopeOverride = null
@@ -199,7 +171,6 @@ internal class PrepareIntelliJEnvironmentKtTest {
         // When
         val result = prepareIntelliJEnvironment(
             tempPath = tempPath,
-            dataPath = dataPath,
             jdkPath = jdkPath,
             proxySettingsDir = root.resolve("proxySettings"),
             scopeOverride = null
@@ -228,7 +199,6 @@ internal class PrepareIntelliJEnvironmentKtTest {
         // When
         val result = prepareIntelliJEnvironment(
             tempPath = tempPath,
-            dataPath = dataPath,
             jdkPath = jdkPath,
             proxySettingsDir = null,
             scopeOverride = "testScope"
