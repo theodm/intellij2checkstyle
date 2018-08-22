@@ -1,6 +1,7 @@
 package de.theodm.intellij2checkstyle
 
-import de.theodm.intellij2checkstyle.convert.convertIntelliJToCheckstyle
+import de.theodm.intellij2checkstyle.convert.createReport
+import de.theodm.intellij2checkstyle.convert.reporters.Reporter
 import de.theodm.intellij2checkstyle.inspectAndConvert.inspectAndConvert
 import java.nio.file.FileSystem
 import java.nio.file.Path
@@ -17,12 +18,12 @@ object Intellij2Checkstyle {
     fun convert(
         reportSetFolderPath: Path,
         projectFolderPath: Path,
-        outputFilePath: Path
+        reporter: List<Reporter>
     ) {
-        return convertIntelliJToCheckstyle(
+        return createReport(
             reportSetFolderPath,
             projectFolderPath,
-            outputFilePath
+            reporter
         )
     }
 
@@ -36,7 +37,7 @@ object Intellij2Checkstyle {
         intelliJPathOverride: Path?,
         profileOverride: String?,
         projectFolderPath: Path,
-        outputFilePath: Path,
+        reporter: List<Reporter>,
         scopeOverride: String?,
         proxySettingsDir: Path?,
         keepTemp: Boolean = false
@@ -46,7 +47,7 @@ object Intellij2Checkstyle {
             intelliJPathOverride = intelliJPathOverride,
             profileOverride = profileOverride,
             projectFolderPath = projectFolderPath,
-            outputFilePath = outputFilePath,
+            reporter = reporter,
             scopeOverride = scopeOverride,
             proxySettingsDir = proxySettingsDir,
             keepTemp = keepTemp

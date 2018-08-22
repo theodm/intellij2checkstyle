@@ -1,6 +1,8 @@
 package de.theodm.intellij2checkstyle.inspect
 
 import de.theodm.intellij2checkstyle.Intellij2Checkstyle
+import de.theodm.intellij2checkstyle.convert.reporters.checkstyle.CheckstyleReporter
+import de.theodm.intellij2checkstyle.convert.reporters.plaintext.PlaintextReporter
 import de.theodm.intellij2checkstyle.extensions.setLogLevel
 import picocli.CommandLine
 import java.nio.file.FileSystems
@@ -39,10 +41,17 @@ internal class InspectCommand : Runnable {
 
     @Suppress("unused", "UnusedPrivateMember")
     @field:CommandLine.Option(
-        names = ["-o", "--output-file"],
+        names = ["-co", "--checkstyle-output-file"],
         defaultValue = "intellij2checkstyle.xml"
     )
-    private lateinit var outputFile: String
+    private lateinit var checkstyleOutputFile: String
+
+    @Suppress("unused", "UnusedPrivateMember")
+    @field:CommandLine.Option(
+        names = ["-po", "--plaintext-output-file"],
+        defaultValue = "intellij2checkstyle.txt"
+    )
+    private lateinit var plaintextOutputFile: String
 
     @Suppress("unused", "UnusedPrivateMember")
     @field:CommandLine.Option(
@@ -88,10 +97,13 @@ internal class InspectCommand : Runnable {
             intelliJPathOverride = intellijPath?.let { Paths.get(it) },
             profileOverride = profileName,
             projectFolderPath = Paths.get(projectFolderPath),
-            outputFilePath = Paths.get(outputFile),
             scopeOverride = scope,
             proxySettingsDir = proxySettings?.let { Paths.get(it) },
-            keepTemp = keepTemp
+            keepTemp = keepTemp,
+            reporter = listOf(
+                CheckstyleReporter(Paths.get(checkstyleOutputFile)),
+                PlaintextReporter(Paths.get(plaintextOutputFile))
+            )
         )
     }
 }

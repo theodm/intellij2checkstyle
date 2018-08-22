@@ -1,6 +1,8 @@
 package de.theodm.intellij2checkstyle.convert
 
 import de.theodm.intellij2checkstyle.Intellij2Checkstyle
+import de.theodm.intellij2checkstyle.convert.reporters.checkstyle.CheckstyleReporter
+import de.theodm.intellij2checkstyle.convert.reporters.plaintext.PlaintextReporter
 import de.theodm.intellij2checkstyle.main
 import io.mockk.every
 import io.mockk.mockkObject
@@ -34,8 +36,11 @@ internal class ConvertCommandTest {
     private val reportSetFolderPath: Path = Paths
         .get(".", "report_set_folder_path")
         .toAbsolutePath()
-    private val outputFilePath: Path = Paths
-        .get(".", "output_file")
+    private val checkstyleOutputFile: Path = Paths
+        .get(".", "checkstyle_output")
+        .toAbsolutePath()
+    private val plaintextOutputFile: Path = Paths
+        .get(".", "plaintext_output")
         .toAbsolutePath()
 
     @AfterEach
@@ -57,8 +62,10 @@ internal class ConvertCommandTest {
                 "convert",
                 "$reportSetFolderPath",
                 "$projectFolderPath",
-                "--output-file",
-                "$outputFilePath"
+                "--checkstyle-output-file",
+                "$checkstyleOutputFile",
+                "--plaintext-output-file",
+                "$plaintextOutputFile"
             )
         )
 
@@ -66,8 +73,11 @@ internal class ConvertCommandTest {
         verify {
             Intellij2Checkstyle.convert(
                 projectFolderPath = projectFolderPath,
-                outputFilePath = outputFilePath,
-                reportSetFolderPath = reportSetFolderPath
+                reportSetFolderPath = reportSetFolderPath,
+                reporter = listOf(
+                    CheckstyleReporter(checkstyleOutputFile),
+                    PlaintextReporter(plaintextOutputFile)
+                )
             )
         }
     }
@@ -93,8 +103,11 @@ internal class ConvertCommandTest {
         verify {
             Intellij2Checkstyle.convert(
                 projectFolderPath = projectFolderPath,
-                outputFilePath = Paths.get("intellij2checkstyle.xml"),
-                reportSetFolderPath = reportSetFolderPath
+                reportSetFolderPath = reportSetFolderPath,
+                reporter = listOf(
+                    CheckstyleReporter(Paths.get("intellij2checkstyle.xml")),
+                    PlaintextReporter(Paths.get("intellij2checkstyle.txt"))
+                )
             )
         }
     }

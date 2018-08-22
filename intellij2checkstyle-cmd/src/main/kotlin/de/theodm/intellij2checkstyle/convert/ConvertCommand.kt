@@ -1,6 +1,8 @@
 package de.theodm.intellij2checkstyle.convert
 
 import de.theodm.intellij2checkstyle.Intellij2Checkstyle
+import de.theodm.intellij2checkstyle.convert.reporters.checkstyle.CheckstyleReporter
+import de.theodm.intellij2checkstyle.convert.reporters.plaintext.PlaintextReporter
 import picocli.CommandLine
 import java.nio.file.Paths
 
@@ -10,10 +12,16 @@ import java.nio.file.Paths
 @Suppress("LateinitUsage")
 internal class ConvertCommand : Runnable {
     @field:CommandLine.Option(
-        names = ["-o", "--output-file"],
+        names = ["-co", "--checkstyle-output-file"],
         defaultValue = "intellij2checkstyle.xml"
     )
-    private lateinit var outputFile: String
+    private lateinit var checkstyleOutputFile: String
+
+    @field:CommandLine.Option(
+        names = ["-po", "--plaintext-output-file"],
+        defaultValue = "intellij2checkstyle.txt"
+    )
+    private lateinit var plaintextOutputFile: String
 
     @field:CommandLine.Parameters(
         index = "0",
@@ -30,9 +38,12 @@ internal class ConvertCommand : Runnable {
 
     override fun run() {
         Intellij2Checkstyle.convert(
-            Paths.get(this.reportSetFolder),
-            Paths.get(this.projectFolderPath),
-            Paths.get(this.outputFile)
+            reportSetFolderPath = Paths.get(this.reportSetFolder),
+            projectFolderPath = Paths.get(this.projectFolderPath),
+            reporter = listOf(
+                CheckstyleReporter(Paths.get(checkstyleOutputFile)),
+                PlaintextReporter(Paths.get(plaintextOutputFile))
+            )
         )
     }
 }

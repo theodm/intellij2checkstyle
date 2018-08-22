@@ -1,6 +1,7 @@
 package integration.tests
 
 import de.theodm.intellij2checkstyle.Intellij2Checkstyle
+import de.theodm.intellij2checkstyle.convert.reporters.checkstyle.CheckstyleReporter
 import de.theodm.intellij2checkstyle.extensions.path.readFully
 import de.theodm.intellij2checkstyle.extensions.path.resolve
 import de.theodm.intellij2checkstyle.testExtensions.subjects.TruthExtensions
@@ -36,10 +37,10 @@ internal class CustomScopeWithoutModulesTest {
             intelliJPathOverride = null,
             profileOverride = null,
             projectFolderPath = projectFolder,
-            outputFilePath = outputFile,
             scopeOverride = "SubScopeOnly",
             proxySettingsDir = null,
-            keepTemp = true
+            keepTemp = true,
+            reporter = listOf(CheckstyleReporter(outputFile))
         )
 
         // Then
@@ -54,6 +55,7 @@ internal class CustomScopeWithoutModulesTest {
             "subscope",
             "AnotherClass.java"
         ).toAbsolutePath()
+            .normalize()
 
         val expected = xml("checkstyle") {
             attribute("version", "8.0")

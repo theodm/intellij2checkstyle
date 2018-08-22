@@ -1,6 +1,8 @@
 package de.theodm.intellij2checkstyle.inspect
 
 import de.theodm.intellij2checkstyle.Intellij2Checkstyle
+import de.theodm.intellij2checkstyle.convert.reporters.checkstyle.CheckstyleReporter
+import de.theodm.intellij2checkstyle.convert.reporters.plaintext.PlaintextReporter
 import de.theodm.intellij2checkstyle.main
 import io.mockk.every
 import io.mockk.mockkObject
@@ -39,8 +41,11 @@ internal class InspectCommandTest {
     private val intelliJPath: Path = Paths
         .get(".", "intellij_path")
         .toAbsolutePath()
-    private val outputFilePath: Path = Paths
-        .get(".", "output_file")
+    private val checkstyleOutputFile: Path = Paths
+        .get(".", "checkstyle_output")
+        .toAbsolutePath()
+    private val plaintextOutputFile: Path = Paths
+        .get(".", "plaintext_output")
         .toAbsolutePath()
     private val proxySettingsPath: Path = Paths
         .get(".", "proxy_folder")
@@ -74,10 +79,13 @@ internal class InspectCommandTest {
                 intelliJPathOverride = null,
                 profileOverride = null,
                 projectFolderPath = projectFolderPath,
-                outputFilePath = Paths.get("intellij2checkstyle.xml"),
                 scopeOverride = null,
                 proxySettingsDir = null,
-                keepTemp = false
+                keepTemp = false,
+                reporter = listOf(
+                    CheckstyleReporter(Paths.get("intellij2checkstyle.xml")),
+                    PlaintextReporter(Paths.get("intellij2checkstyle.txt"))
+                )
             )
         }
     }
@@ -98,8 +106,10 @@ internal class InspectCommandTest {
                 "--keep-temp",
                 "--intellij-path",
                 "$intelliJPath",
-                "--output-file",
-                "$outputFilePath",
+                "--checkstyle-output-file",
+                "$checkstyleOutputFile",
+                "--plaintext-output-file",
+                "$plaintextOutputFile",
                 "--profile",
                 "anyprofile",
                 "--scope",
@@ -118,10 +128,13 @@ internal class InspectCommandTest {
                 intelliJPathOverride = intelliJPath,
                 profileOverride = "anyprofile",
                 projectFolderPath = projectFolderPath,
-                outputFilePath = outputFilePath,
                 scopeOverride = "anyscope",
                 proxySettingsDir = proxySettingsPath,
-                keepTemp = true
+                keepTemp = true,
+                reporter = listOf(
+                    CheckstyleReporter(checkstyleOutputFile),
+                    PlaintextReporter(plaintextOutputFile)
+                )
             )
         }
     }

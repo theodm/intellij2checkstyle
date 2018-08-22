@@ -1,5 +1,6 @@
 package integration.cmd
 
+import com.google.common.truth.Truth
 import de.theodm.intellij2checkstyle.extensions.execute.executeProgramWithEnv
 import de.theodm.intellij2checkstyle.extensions.path.readFully
 import de.theodm.intellij2checkstyle.extensions.path.resolve
@@ -73,8 +74,12 @@ internal class CommandLineTest {
         @ProjectFolder projectFolder: Path
     ) {
         // Given
-        val outputFile = outputFolder
+        val outputFileCheckstyle = outputFolder
             .resolve("checkstyle.xml")
+            .toAbsolutePath()
+
+        val outputFilePlaintext = outputFolder
+            .resolve("plaintext.txt")
             .toAbsolutePath()
 
         // When
@@ -85,13 +90,16 @@ internal class CommandLineTest {
                 "$pathToExecutable",
                 "inspect",
                 "$projectFolder",
-                "--output-file",
-                "$outputFile"
+                "--checkstyle-output-file",
+                "$outputFileCheckstyle",
+                "--plaintext-output-file",
+                "$outputFilePlaintext",
+                "--log-level",
+                "TRACE"
             )
         )
 
         // Then
-        val result = outputFile.readFully()
         val exampleJavaPath = projectFolder.resolve(
             "src",
             "main",
@@ -101,8 +109,11 @@ internal class CommandLineTest {
             "simple",
             "Example.java"
         ).toAbsolutePath()
+            .normalize()
 
-        val expected = xml("checkstyle") {
+        val resultCheckstyle = outputFileCheckstyle.readFully()
+
+        val expectedCheckstyle = xml("checkstyle") {
             attribute("version", "8.0")
             "file" {
                 attribute("name", exampleJavaPath)
@@ -128,6 +139,18 @@ internal class CommandLineTest {
             }
         }.toString()
 
-        TruthExtensions.assertThat(result).isXmlEqualTo(expected)
+        TruthExtensions.assertThat(resultCheckstyle).isXmlEqualTo(expectedCheckstyle)
+
+        val resultPlaintext = outputFilePlaintext
+            .readFully()
+            .split('\n')
+
+        val expectedPlaintextLines = listOf(
+            "[$exampleJavaPath]",
+            "Warning at line 3: Declaration redundancy Can be package-private",
+            "Warning at line 5: Declaration redundancy Variable <code>unused</code> is never used"
+        )
+
+        Truth.assertThat(resultPlaintext).containsAllIn(expectedPlaintextLines)
     }
 }

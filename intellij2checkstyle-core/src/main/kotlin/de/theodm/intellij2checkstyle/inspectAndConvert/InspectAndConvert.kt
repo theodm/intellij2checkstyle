@@ -1,6 +1,7 @@
 package de.theodm.intellij2checkstyle.inspectAndConvert
 
-import de.theodm.intellij2checkstyle.convert.convertIntelliJToCheckstyle
+import de.theodm.intellij2checkstyle.convert.createReport
+import de.theodm.intellij2checkstyle.convert.reporters.Reporter
 import de.theodm.intellij2checkstyle.inspect.runInspections
 import de.theodm.intellij2checkstyle.shared.tempFolder.tempFolder
 import java.nio.file.FileSystem
@@ -11,7 +12,7 @@ internal fun inspectAndConvert(
     intelliJPathOverride: Path?,
     profileOverride: String?,
     projectFolderPath: Path,
-    outputFilePath: Path,
+    reporter: List<Reporter>,
     scopeOverride: String?,
     proxySettingsDir: Path?,
     keepTemp: Boolean = false
@@ -28,10 +29,10 @@ internal fun inspectAndConvert(
             keepTemp
         )
 
-        convertIntelliJToCheckstyle(
+        createReport(
             outputTempFolder,
             projectFolderPath,
-            outputFilePath
+            reporter
         )
     }
 }

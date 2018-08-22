@@ -2,6 +2,7 @@ package de.theodm.intellij2checkstyle.extensions.xml
 
 import de.theodm.intellij2checkstyle.extensions.charset.defaultCharset
 import java.io.Reader
+import java.nio.file.Files
 import java.nio.file.Path
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Unmarshaller
@@ -22,9 +23,7 @@ internal inline fun <reified T> jaxbDeserialize(
     clazz: Class<T> = T::class.java
 ): T {
     return jaxbDeserialize(
-        // @Workaround: Paths.toBufferedReader doesn't seem to work with
-        // the generated intellij files for some reason
-        inputPath.toFile().reader(defaultCharset),
+        Files.readAllBytes(inputPath).toString(defaultCharset),
         clazz
     )
 }
