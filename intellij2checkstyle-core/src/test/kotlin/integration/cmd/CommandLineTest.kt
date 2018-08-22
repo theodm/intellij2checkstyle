@@ -53,7 +53,7 @@ internal class CommandLineTest {
 
         return foundFile ?: throw IllegalStateException(
             "there was no release jar found. To run " +
-                "this integration test you have to execute the assemble task."
+                "this integration test you have to execute the assembleRelease task."
         )
     }
 
