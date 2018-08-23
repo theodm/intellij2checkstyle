@@ -83,7 +83,7 @@ internal class CommandLineTest {
             .toAbsolutePath()
 
         // When
-        executeProgramWithEnv(
+        val programResult = executeProgramWithEnv(
             "java",
             arrayOf(
                 "-jar",
@@ -152,5 +152,36 @@ internal class CommandLineTest {
         )
 
         Truth.assertThat(resultPlaintext).containsAllIn(expectedPlaintextLines)
+        Truth.assertThat(programResult).isEqualTo(0)
+    }
+
+    @Test
+    @ResourceLocation("single_profile")
+    @DisplayName(
+        "The release build of the command line client " +
+            "can sucessfully will return an error code if " +
+            "--fail-on-severity All is specified"
+    )
+    fun testErrorReturn(
+        @OutputFolder outputFolder: Path,
+        @ProjectFolder projectFolder: Path
+    ) {
+        // When
+        val programResult = executeProgramWithEnv(
+            "java",
+            arrayOf(
+                "-jar",
+                "$pathToExecutable",
+                "inspect",
+                "$projectFolder",
+                "--log-level",
+                "TRACE",
+                "--fail-on-severity",
+                "All"
+            )
+        )
+
+        // Then
+        Truth.assertThat(programResult).isEqualTo(1)
     }
 }

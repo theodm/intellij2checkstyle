@@ -14,6 +14,13 @@ internal fun Severity.toCheckstyleSeverity() = when (this) {
     Severity.InfoDepreceated,
     Severity.WeakWarning,
     Severity.Warning -> CheckStyleSeverity.Warning
+
+    Severity.None,
+    Severity.All -> throw IllegalStateException(
+        "Severity None or All was found in the issues, " +
+            "this should not happen as, these are intended to be used for comparing severity " +
+            "levels."
+    )
 }
 
 @XmlEnum

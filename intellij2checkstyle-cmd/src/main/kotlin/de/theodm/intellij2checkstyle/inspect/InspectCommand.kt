@@ -1,8 +1,12 @@
 package de.theodm.intellij2checkstyle.inspect
 
 import de.theodm.intellij2checkstyle.Intellij2Checkstyle
+import de.theodm.intellij2checkstyle.convert.domain.Severity
 import de.theodm.intellij2checkstyle.convert.reporters.checkstyle.CheckstyleReporter
 import de.theodm.intellij2checkstyle.convert.reporters.plaintext.PlaintextReporter
+import de.theodm.intellij2checkstyle.convert.reporters.result.Result
+import de.theodm.intellij2checkstyle.convert.reporters.result.ResultReporter
+import de.theodm.intellij2checkstyle.extensions.ShutdownHelper
 import de.theodm.intellij2checkstyle.extensions.setLogLevel
 import picocli.CommandLine
 import java.nio.file.FileSystems
@@ -89,8 +93,27 @@ internal class InspectCommand : Runnable {
     )
     private var logLevel: String = "INFO"
 
+    @Suppress("unused", "UnusedPrivateMember")
+    @field:CommandLine.Option(
+        names = ["-fo", "--fail-on-severity"],
+        defaultValue = "None",
+        description = ["Will return an error code if one issue with the selected Severity or " +
+            "an severity above that is found. Available severity with severity leves are: All(0)," +
+            " Information(1), WeakWarning(2), InfoDepreceated(3), Warning(4), ServerProblem(5), " +
+            "Error(5), Custom(6)"]
+    )
+    private var failOnSeverity: String = "None"
+
     override fun run() {
+        fun resultToExitCode(result: Result) = when (result) {
+            is Result.Success -> 0
+            is Result.NoResultYet -> 2
+            is Result.Error -> 1
+        }
+
         setLogLevel(logLevel)
+
+        val resultReporter = ResultReporter(Severity.valueOf(failOnSeverity))
 
         Intellij2Checkstyle.inspect(
             fileSystem = FileSystems.getDefault(),
@@ -102,8 +125,11 @@ internal class InspectCommand : Runnable {
             keepTemp = keepTemp,
             reporter = listOf(
                 CheckstyleReporter(Paths.get(checkstyleOutputFile)),
-                PlaintextReporter(Paths.get(plaintextOutputFile))
+                PlaintextReporter(Paths.get(plaintextOutputFile)),
+                resultReporter
             )
         )
+
+        ShutdownHelper.exit(resultToExitCode(resultReporter.result))
     }
 }
