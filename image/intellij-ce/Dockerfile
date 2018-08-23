@@ -1,8 +1,10 @@
 FROM openjdk:8
 
+ARG INTELLIJ_VERSION
+
 # Download intellij
 RUN mkdir /home/intellij --parents && \
-    curl https://download.jetbrains.com/idea/ideaIC-2018.1.5.tar.gz \
+    curl https://download-cf.jetbrains.com/idea/ideaIC-${INTELLIJ_VERSION}.tar.gz \
     --output /home/intellij/ideaDownload.tar.gz \
     --location-trusted
 

@@ -1,3 +1,12 @@
+variables:
+  INTELLIJ_LATEST_VERSION: 2018.2.2
+  INTELLIJ_IMAGE_LATEST: registry.gitlab.com/$CI_PROJECT_PATH/intellij/$INTELLIJ_LATEST_VERSION
+  INTELLIJ_IMAGE_LATEST_JOB_TAG: registry.gitlab.com/$CI_PROJECT_PATH/intellij/$INTELLIJ_LATEST_VERSION:$CI_BUILD_REF
+
+  INTELLIJ_LATEST_MINUS_ONE_VERSION: 2018.1.6
+  INTELLIJ_IMAGE_LATEST_MINUS_ONE: registry.gitlab.com/$CI_PROJECT_PATH/intellij/$INTELLIJ_LATEST_MINUS_ONE_VERSION
+  INTELLIJ_IMAGE_LATEST_MINUS_ONE_JOB_TAG: registry.gitlab.com/$CI_PROJECT_PATH/intellij/$INTELLIJ_LATEST_MINUS_ONE_VERSION:$CI_BUILD_REF
+
 stages:
 - build
 - verify
@@ -22,16 +31,18 @@ build:image:
   services:
   - docker:dind
   variables:
-    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
   before_script:
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
   script:
-  - cd ./image/intellij-ce-current
-  - docker pull $CONTAINER_IMAGE:intellij-ce-current || true
-  - docker build --cache-from $CONTAINER_IMAGE:intellij-ce-current --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:intellij-ce-current .
-  - docker push $CONTAINER_IMAGE:intellij-ce-current
+  - cd ./image/intellij-ce
+  - docker pull $INTELLIJ_IMAGE_LATEST || true
+  - docker build --cache-from $INTELLIJ_IMAGE_LATEST --tag $INTELLIJ_IMAGE_LATEST_JOB_TAG --tag $INTELLIJ_IMAGE_LATEST --build-arg INTELLIJ_VERSION=$INTELLIJ_LATEST_VERSION .
+  - docker push $INTELLIJ_IMAGE_LATEST
+  - docker pull $INTELLIJ_IMAGE_LATEST_MINUS_ONE || true
+  - docker build --cache-from $INTELLIJ_IMAGE_LATEST_MINUS_ONE --tag $INTELLIJ_IMAGE_LATEST_MINUS_ONE_JOB_TAG --tag $INTELLIJ_IMAGE_LATEST_MINUS_ONE --build-arg INTELLIJ_VERSION=$INTELLIJ_LATEST_MINUS_ONE_VERSION .
+  - docker push $INTELLIJ_IMAGE_LATEST_MINUS_ONE
 
 unit-test:
   image: openjdk:8
@@ -48,8 +59,20 @@ unit-test:
     - ./build/reports/allTests
     when: always
 
-integration-test:intellij-ce-current:
-  image: registry.gitlab.com/theodm94/intellij2checkstyle:intellij-ce-current
+integration-test:intellij-ce-latest:
+  image: $INTELLIJ_IMAGE_LATEST_JOB_TAG
+  stage: verify
+  script:
+  - chmod +x gradlew
+  - ./gradlew :intellij2checkstyle-core:integrationTest
+  artifacts:
+    paths:
+    - ./intellij2checkstyle-core/build/integration
+    - ./intellij2checkstyle-core/build/reports/tests/integrationTest
+    when: always
+
+integration-test:intellij-ce-latest-minus-one:
+  image: $INTELLIJ_IMAGE_LATEST_MINUS_ONE_JOB_TAG
   stage: verify
   script:
   - chmod +x gradlew
@@ -61,7 +84,7 @@ integration-test:intellij-ce-current:
     when: always
 
 full-test:command-line-client:
-  image: registry.gitlab.com/theodm94/intellij2checkstyle:intellij-ce-current
+  image: $INTELLIJ_IMAGE_LATEST_JOB_TAG
   stage: verify
   script:
   - chmod +x gradlew
