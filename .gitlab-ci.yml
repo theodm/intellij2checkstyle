@@ -154,10 +154,10 @@ verify-publish:
   dependencies:
   - publish
   script:
-  - sleep 5m
   - chmod +x gradlew
   - ./gradlew assembleRelease
   - ./gradlew :intellij2checkstyle-core:gradleGlobalTest
+  when: manual
   only:
   - master
 
