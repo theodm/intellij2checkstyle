@@ -1,4 +1,4 @@
-package integration.cmd
+package integration.cmdLocal
 
 import com.google.common.truth.Truth
 import de.theodm.intellij2checkstyle.extensions.execute.executeProgramWithEnv

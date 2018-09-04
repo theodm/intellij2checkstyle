@@ -63,6 +63,18 @@ tasks.create("integrationTest", Test::class.java) {
 
 tasks.create("cmdIntegrationTest", Test::class.java) {
     filter {
-        includeTestsMatching("integration.cmd.*")
+        includeTestsMatching("integration.cmdLocal.*")
+    }
+}
+
+tasks.create("gradleIntegrationTest", Test::class.java) {
+    filter {
+        includeTestsMatching("integration.gradleLocal.*")
+    }
+}
+
+tasks.create("gradleGlobalTest", Test::class.java) {
+    filter {
+        includeTestsMatching("integration.gradleGlobal.*")
     }
 }

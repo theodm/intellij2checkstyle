@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 private const val DEFAULT_TIMEOUT = 360.toLong()
@@ -14,7 +15,8 @@ internal fun executeProgramWithEnv(
     executable: String,
     args: Array<out String> = arrayOf(),
     environmentVariables: Map<String, String> = mapOf(),
-    timeoutInSeconds: Long = DEFAULT_TIMEOUT
+    timeoutInSeconds: Long = DEFAULT_TIMEOUT,
+    workingDirectory: Path? = null
 ): Int {
     fun outputToLog(
         inputStream: InputStream,
@@ -35,6 +37,9 @@ internal fun executeProgramWithEnv(
     }
 
     val processBuilder = ProcessBuilder(executable, *args)
+
+    if (workingDirectory != null)
+        processBuilder.directory(workingDirectory.toFile())
 
     processBuilder
         .environment() += environmentVariables

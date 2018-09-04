@@ -1,8 +1,12 @@
+import com.jfrog.bintray.gradle.BintrayExtension
+import org.gradle.internal.impldep.org.joda.time.LocalDate
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 import se.bjurr.violations.gradle.plugin.ViolationsTask
 import se.bjurr.violations.lib.ViolationsReporterDetailLevel
 import se.bjurr.violations.lib.model.SEVERITY
+import java.time.Instant
+import java.util.Date
 
 buildscript {
     /**
@@ -27,12 +31,23 @@ plugins {
     // https://github.com/tomasbjerre/violations-gradle-plugin
     id("se.bjurr.violations.violations-gradle-plugin") version "1.13"
 
+    // Maven-Publish plugin to push to local maven repository
+    id("maven-publish")
+
+    // Bintray plugin to push core library to jCenter
+    id("com.jfrog.bintray") version "1.8.4"
+
+    // Jacoco coverage runner
     jacoco
 }
 
 allprojects {
-    group = "de.theodm"
-    version = "1.0.0-SNAPSHOT"
+    // Defined in gradle.properties
+    val i2cGroup: String by project
+    val i2cVersion: String by project
+
+    group = i2cGroup
+    version = i2cVersion
 
     repositories {
         mavenCentral()
@@ -70,6 +85,54 @@ subprojects {
         .dependsOn("violations")
 }
 
+// Projects for which bintray plugin and maven-publish plugin
+// should be configured.
+private val mavenProjectNames = listOf(
+    "intellij2checkstyle-core",
+    "intellij2checkstyle-gradle"
+)
+
+private val mavenProjects = subprojects
+    .filter { mavenProjectNames.contains(it.name) }
+
+configure(mavenProjects) {
+    apply(plugin = "maven-publish")
+    apply(plugin = "com.jfrog.bintray")
+
+    publishing {
+        repositories {
+            maven("$rootDir/.m2")
+        }
+
+        publications {
+            create("mavenJava", MavenPublication::class.java) {
+                from(components["java"])
+            }
+        }
+    }
+
+    bintray {
+        user = System.getProperty("bintray.user")
+        key = System.getProperty("bintray.key")
+        publish = true
+
+        pkg(closureOf<BintrayExtension.PackageConfig> {
+            repo = "maven"
+            name = this@configure.name
+            setLicenses("Apache-2.0")
+            vcsUrl = "https://gitlab.com/theodm94/intellij2checkstyle"
+
+            version(closureOf<BintrayExtension.VersionConfig> {
+                name = this@configure.version.toString()
+                desc = ""
+                vcsTag = this@configure.version.toString()
+                released = Date.from(Instant.now().minusSeconds(172800)).toString()
+            })
+        })
+    }
+}
+
+
 ktlint {
     reporters = arrayOf(ReporterType.PLAIN, ReporterType.CHECKSTYLE)
     ignoreFailures = true
@@ -90,7 +153,7 @@ detekt {
     })
 }
 
-tasks.create("assembleRelease", Copy::class.java) {
+tasks.create("copyCommandLineClient", Copy::class.java) {
     dependsOn(
         "assemble",
         ":intellij2checkstyle-core:assemble",
@@ -106,6 +169,14 @@ tasks.create("assembleRelease", Copy::class.java) {
     from(cmdJarFolder) {
         include("*-all.jar")
     }
+}
+
+tasks.create("assembleRelease", DefaultTask::class.java) {
+    dependsOn(
+        "copyCommandLineClient",
+        ":intellij2checkstyle-core:publishMavenJavaPublicationToMavenRepository",
+        ":intellij2checkstyle-gradle:publishMavenJavaPublicationToMavenRepository"
+    )
 }
 
 tasks.create("testRootReport", TestReport::class.java) {

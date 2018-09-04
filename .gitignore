@@ -12,12 +12,14 @@
 /intellij2checkstyle/build
 /intellij2checkstyle-cmd/build
 /intellij2checkstyle-core/build
+/intellij2checkstyle-gradle/build
 
 # IntelliJ Output directories
 /out
 /intellij2checkstyle/out
 /intellij2checkstyle-cmd/out
 /intellij2checkstyle-core/out
+/intellij2checkstyle-gradle/out
 
 # Proxy Settings for Testing
 /intellij2checkstyle-core/data/ideaConfiguration/config/options/proxy.settings.pwd

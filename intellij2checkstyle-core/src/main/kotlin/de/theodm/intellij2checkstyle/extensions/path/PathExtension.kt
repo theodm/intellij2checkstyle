@@ -3,6 +3,7 @@ package de.theodm.intellij2checkstyle.extensions.path
 import de.theodm.intellij2checkstyle.extensions.charset.defaultCharset
 import mu.KotlinLogging
 import java.io.IOException
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -49,6 +50,14 @@ internal fun Path.appendToFile(
         (fileAsStr + appendString)
             .toByteArray(defaultCharset)
     )
+}
+
+internal fun Path.createFileIfNotExists() {
+    try {
+        Files.createFile(this)
+    } catch (ignored: FileAlreadyExistsException) {
+        log.trace { "It was attempted to create the file $this but it already exists" }
+    }
 }
 
 internal fun Path.removeDirectoryWithContentsIfExists() {
