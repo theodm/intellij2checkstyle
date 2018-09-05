@@ -114,13 +114,23 @@ configure(mavenProjects) {
     bintray {
         user = System.getProperty("bintray.user")
         key = System.getProperty("bintray.key")
+
         publish = true
+
+        setPublications("mavenJava")
 
         pkg(closureOf<BintrayExtension.PackageConfig> {
             repo = "maven"
             name = this@configure.name
+
             setLicenses("Apache-2.0")
-            vcsUrl = "https://gitlab.com/theodm94/intellij2checkstyle"
+            setLabels("static-analysis", "lint", "idea", "intellij")
+
+            websiteUrl = "https://gitlab.com/theodm94/intellij2checkstyle"
+            issueTrackerUrl = "https://gitlab.com/theodm94/intellij2checkstyle/issues"
+            vcsUrl = "https://gitlab.com/theodm94/intellij2checkstyle.git"
+
+            publicDownloadNumbers = true
 
             version(closureOf<BintrayExtension.VersionConfig> {
                 name = this@configure.version.toString()
