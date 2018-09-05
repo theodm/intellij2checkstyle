@@ -132,6 +132,9 @@ configure(mavenProjects) {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.2"
+}
 
 ktlint {
     reporters = arrayOf(ReporterType.PLAIN, ReporterType.CHECKSTYLE)
@@ -186,14 +189,13 @@ tasks.create("testRootReport", TestReport::class.java) {
 }
 
 tasks.create("jacocoRootReport", JacocoReport::class.java) {
-    val allReportTasks = subprojects
-        .flatMap { it.tasks.withType(JacocoReport::class.java) }
-
-    dependsOn(allReportTasks)
-
-    val allExecutionData = allReportTasks
-        .flatMap { it.executionData }
-        .filter { it.exists() }
+    val allExecutionData = subprojects
+        .flatMap {
+            it.buildDir
+                .resolve("jacoco")
+                .listFiles()
+                ?.toList() ?: listOf()
+        }
 
     executionData(allExecutionData)
 

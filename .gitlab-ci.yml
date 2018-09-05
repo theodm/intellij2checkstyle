@@ -10,6 +10,7 @@ variables:
 stages:
 - build
 - verify
+- verify-aggregate
 - deploy
 - publish
 - verify-publish
@@ -52,14 +53,13 @@ unit-test:
   stage: verify
   script:
   - chmod +x gradlew
-  - ./gradlew testRootReport
-  - ./gradlew jacocoRootReport
-  - cat ./build/reports/jacoco/jacocoRootReport/html/index.html
-  coverage: '/Total.*?([0-9]{1,3})%/'
+  - ./gradlew test
   artifacts:
     paths:
-    - ./build/reports/jacoco
-    - ./build/reports/allTests
+    - ./build
+    - ./intellij2checkstyle-core/build
+    - ./intellij2checkstyle-cmd/build
+    - ./intellij2checkstyle-gradle/build
     when: always
 
 integration-test:intellij-ce-latest:
@@ -70,8 +70,10 @@ integration-test:intellij-ce-latest:
   - ./gradlew :intellij2checkstyle-core:integrationTest
   artifacts:
     paths:
-    - ./intellij2checkstyle-core/build/integration
-    - ./intellij2checkstyle-core/build/reports/tests/integrationTest
+    - ./build
+    - ./intellij2checkstyle-core/build
+    - ./intellij2checkstyle-cmd/build
+    - ./intellij2checkstyle-gradle/build
     when: always
 
 integration-test:intellij-ce-latest-minus-one:
@@ -82,10 +84,11 @@ integration-test:intellij-ce-latest-minus-one:
   - ./gradlew :intellij2checkstyle-core:integrationTest
   artifacts:
     paths:
-    - ./intellij2checkstyle-core/build/integration
-    - ./intellij2checkstyle-core/build/reports/tests/integrationTest
+    - ./build
+    - ./intellij2checkstyle-core/build
+    - ./intellij2checkstyle-cmd/build
+    - ./intellij2checkstyle-gradle/build
     when: always
-
 
 full-test:gradle-plugin:
   image: $INTELLIJ_IMAGE_LATEST_JOB_TAG
@@ -97,8 +100,10 @@ full-test:gradle-plugin:
   - build
   artifacts:
     paths:
-    - ./intellij2checkstyle-core/build/integration
-    - ./intellij2checkstyle-core/build/reports/tests/cmdIntegrationTest
+    - ./build/
+    - ./intellij2checkstyle-core/build
+    - ./intellij2checkstyle-cmd/build
+    - ./intellij2checkstyle-gradle/build
     when: always
 
 full-test:command-line-client:
@@ -111,8 +116,10 @@ full-test:command-line-client:
   - build
   artifacts:
     paths:
-    - ./intellij2checkstyle-core/build/integration
-    - ./intellij2checkstyle-core/build/reports/tests/cmdIntegrationTest
+    - ./build
+    - ./intellij2checkstyle-core/build
+    - ./intellij2checkstyle-cmd/build
+    - ./intellij2checkstyle-gradle/build
     when: always
 
 lint:
@@ -122,9 +129,26 @@ lint:
   - chmod +x gradlew
   - ./gradlew violations
 
+verify-aggregate:
+  image: openjdk:8
+  stage: verify-aggregate
+  dependencies:
+  - unit-test
+  - integration-test:intellij-ce-latest
+  - integration-test:intellij-ce-latest-minus-one
+  - full-test:gradle-plugin
+  - full-test:command-line-client
+  script:
+  - chmod +x gradlew
+  - ./gradlew jacocoRootReport
+  - cat ./build/reports/jacoco/jacocoRootReport/html/index.html
+  coverage: '/Total.*?([0-9]{1,3})%/'
+
 pages:
   image: openjdk:8
   stage: deploy
+  dependencies:
+  - verify-aggregate
   script:
   - mkdir --parents public/coverage/
   - mkdir --parents public/tests/
