@@ -1,4 +1,4 @@
-# intellij2checkstyle [![pipeline status](https://gitlab.com/theodm94/intellij2checkstyle/badges/master/pipeline.svg)](https://theodm94.gitlab.io/intellij2checkstyle/tests/) [![coverage report](https://gitlab.com/theodm94/intellij2checkstyle/badges/master/coverage.svg)](https://theodm94.gitlab.io/intellij2checkstyle/coverage/)
+# intellij2checkstyle [![pipeline status](https://gitlab.com/theodm94/intellij2checkstyle/badges/master/pipeline.svg)](https://gitlab.com/theodm94/intellij2checkstyle/pipelines) [![coverage report](https://gitlab.com/theodm94/intellij2checkstyle/badges/master/coverage.svg)](https://theodm94.gitlab.io/intellij2checkstyle/coverage/)
 
 Intellij2checkstyle converts inspection reports of the IntelliJ Idea IDE to the useful [checkstyle](http://checkstyle.sourceforge.net/) xml format. The project also contains tools to simplify the execution of the [IntelliJ Command line inspector](https://www.jetbrains.com/help/idea/running-inspections-offline.html).
 

@@ -175,7 +175,6 @@ pages:
   - mkdir --parents public/coverage/
   - mkdir --parents public/tests/
   - mv ./build/reports/jacoco/jacocoRootReport/html/* public/coverage/
-  - mv ./build/reports/allTests/* public/tests/
   artifacts:
     paths:
     - public
