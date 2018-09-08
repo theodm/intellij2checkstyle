@@ -195,7 +195,7 @@ publish:
   - master
 
 verify-publish:
-  image: openjdk:8
+  image: $INTELLIJ_IMAGE_LATEST_JOB_TAG
   stage: verify-publish
   retry: 2
   dependencies:

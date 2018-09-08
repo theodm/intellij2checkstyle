@@ -26,8 +26,8 @@ import java.nio.file.attribute.PosixFilePermissions
 internal class GradlePluginPortalTest {
 
     private fun testWithExecutable(
-        @OutputFolder outputFolder: Path,
-        @ProjectFolder projectFolder: Path,
+        outputFolder: Path,
+        projectFolder: Path,
         executable: String
     ) {
         // Given
